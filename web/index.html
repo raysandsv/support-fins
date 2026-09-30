@@ -172,12 +172,12 @@
        before. Layout only: every control keeps its id, and nothing it builds moved. -->
   <details class="sec" data-sec="setup" open>
     <summary><span class="sec-title">Setup</span><span class="sec-sum" id="sum-setup"></span></summary>
-    <!-- Material: PETG welds to a support far harder than the PLA the bite numbers
-         were tuned for, so it needs more clearance everywhere. PLA is the default and
-         keeps today's tight grip; PETG widens the support gap + fin-tine standoff,
-         halves the tine bite, thins the bed pad, and turns the pad's tack into a gap.
+    <!-- Material: PETG welds to supports more easily than PLA, so its top gap
+         is larger and its tine bite is smaller. Both use the same 0.35 mm
+         side clearance while that material-specific setting is untested.
+         PETG also thins the bed pad and turns its tack into a gap.
          Applied in ui/settings.js (applyMaterial), which also re-syncs the tunables below. -->
-    <label class="fld row" id="material-fld" title="The filament you'll print in. PETG fuses to supports much harder than PLA, so PETG loosens the gaps, shrinks the tine bite, and gives the bed pad a gap instead of a bite. PLA keeps the tighter grip.">
+    <label class="fld row" id="material-fld" title="The filament you'll print in. PETG uses a larger top gap, a smaller tine bite, and a gap at the bed pad. Side clearance is 0.35 mm for both PLA and PETG.">
       Material
       <select id="material">
         <option value="pla">PLA</option>

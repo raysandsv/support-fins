@@ -97,14 +97,13 @@ export function sweep(line, zBed, out, minH = PROP.minHeight) {
 /**
  * Sweep a PART-ATTACHED wall between two contours: its top stops `gap` below the
  * overhang (`topLine`, exactly as `sweep` does) and its bottom rests ON the floor
- * contour (`botLine` from `floorLine`) instead of a flat `zBed`.
+ * contour (`botLine` from `floorLine`) plus footGap instead of a flat `zBed`.
  *
  * The bottom is a per-station contour, so it conforms to a sloped or curved floor
  * for free -- no flat foot ellipse, which would only touch a level surface at one
- * edge. The wall tapers to the `tip` width at BOTH ends: the top tip breaks away
- * under the overhang (the part bridges the `gap`), and the bottom tip is the only
- * thing that welds to the part below, kept as narrow as the top so it leaves the
- * smallest possible witness mark and snaps off cleanly.
+ * edge. The top tapers to the `tip` width under the overhang. A bottom
+ * without a foot gap also tapers to a narrow tip; with the printed foot gap it
+ * keeps its full wall thickness so the first layer spans that gap.
  *
  * The bottom stops PROP.footGap above the floor -- the same clearance as the top,
  * a slicer's "bottom Z distance". Bottom relief optionally lifts only the

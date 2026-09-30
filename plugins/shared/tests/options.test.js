@@ -43,6 +43,8 @@ const SITE_EXCLUDED = {
   'show-layers': 'site display', 'highlight-small': 'site display',
   'fin-mode': 'plugins run Auto; Draw needs the site\'s canvas',
   'gap': 'hand-typed clearance; the material sets it',
+  'side-gap': 'hand-typed wide-face clearance; the material sets it',
+  'bottom-gap': 'site-only experimental cavity-floor relief; plugins keep default zero',
   'pad-h': 'Custom pad', 'pad-gap': 'Custom pad', 'pad-grip': 'Custom pad', 'pad-margin': 'Custom pad',
 };
 

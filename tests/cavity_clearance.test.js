@@ -16,6 +16,9 @@ Deno.test('side clearance applies when checking a fin wide face', () => {
     assert(stationIsClear(line, 1, side, rot, { x: 0, y: 0, z: 0 }), 'baseline wall should fit');
     PROP.sideClear = 0.8;
     assert(!stationIsClear(line, 1, side, rot, { x: 0, y: 0, z: 0 }), 'larger wide-face clearance should reject wall');
+    const thin = blockTopo(0.92, 1.06, -2, 12, 1, 9);
+    assert(!stationIsClear(line, 1, thin, rot, { x: 0, y: 0, z: 0 }),
+      'high side clearance should detect a thin wall between the old probes');
   } finally { PROP.sideClear = was; }
 });
 

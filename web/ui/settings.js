@@ -150,6 +150,14 @@ function wireGap(id, obj, key, lo, hi) {
     const v = input.valueAsNumber;
     if (Number.isFinite(v)) { obj[key] = Math.min(hi, Math.max(lo, v)); debouncedRefresh(); }
   });
+  // A number typed outside the range is clamped in the engine; show that same
+  // effective value after editing so the recap never advertises an invalid gap.
+  input.addEventListener('change', () => {
+    const v = input.valueAsNumber;
+    if (Number.isFinite(v)) obj[key] = Math.min(hi, Math.max(lo, v));
+    input.value = String(obj[key]);
+    syncSectionSums();
+  });
 }
 wireGap('gap', PROP, 'gap', 0.1, 0.4);
 wireGap('side-gap', PROP, 'sideClear', 0.2, 1.0);
