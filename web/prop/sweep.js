@@ -107,7 +107,8 @@ export function sweep(line, zBed, out, minH = PROP.minHeight) {
  * smallest possible witness mark and snaps off cleanly.
  *
  * The bottom stops PROP.footGap above the floor -- the same clearance as the top,
- * a slicer's "bottom Z distance". It used to weld on purpose, on the worry that
+ * a slicer's "bottom Z distance". Bottom relief optionally lifts only the
+ * spans between short line feet above that printed gap. It used to weld on purpose, on the worry that
  * a gap at both ends makes a floating island the slicer can't anchor; the foot
  * coupon (prototype/calibration/foot/) printed the gap clean, and the welded tip
  * was the only one that scarred the part (local issue 009). The first layer
@@ -117,6 +118,20 @@ export function sweep(line, zBed, out, minH = PROP.minHeight) {
 export function sweepBetween(topLine, botLine, out) {
   const welded = PROP.footGap <= 0;
   const wall = [], st = [];
+  // Along-wall distances keep each short foot a line rather than one station's
+  // point. The foot remains at Matthew's printed footGap; only the spans between
+  // feet get additional relief. At zero, the original geometry is unchanged.
+  const along = [0];
+  for (let i = 1; i < topLine.length; i++)
+    along[i] = along[i - 1] + Math.hypot(topLine[i][0] - topLine[i - 1][0],
+                                         topLine[i][1] - topLine[i - 1][1]);
+  const length = along[along.length - 1] || 0;
+  const atFoot = (d) => {
+    const step = Math.max(2, PROP.bottomAnchorStep);
+    const half = Math.max(1, PROP.bottomAnchorHalf);
+    const phase = ((d + step / 2) % step) - step / 2;
+    return Math.abs(phase) <= half || d <= half || length - d <= half;
+  };
   for (let i = 0; i < topLine.length; i++) {
     const p = topLine[i];
     const a = topLine[Math.max(0, i - 1)];
@@ -128,16 +143,22 @@ export function sweepBetween(topLine, botLine, out) {
     const sx = ry, sy = -rx;                 // horizontal, across the wall
 
     const top = p[2] - PROP.gap;
-    const bot = botLine[i][2] + PROP.footGap;
+    const floor = botLine[i][2];
+    const baseBot = floor + PROP.footGap;
+    // Keep at least 0.5 mm of height, even at a low tail or on a raised floor.
+    // Count baseline headroom, so relief does not silently remove existing walls.
+    const relief = PROP.bottomGap > 0 && !atFoot(along[i])
+      ? Math.min(PROP.bottomGap, Math.max(0, top - baseBot - 0.5)) : 0;
+    const bot = baseBot + relief;
     // judged on the headroom, not the lifted wall: the gap must not change
     // WHICH walls exist (hub_corner X60 lost a 31 mm wall to a 1.6 mm station)
-    if (top - bot + PROP.footGap < PROP.minHeight) return false;
+    if (top - bot + PROP.footGap + relief < PROP.minHeight) return false;
     // a lifted bottom tilts with the floor under each side (floorLine's
     // sideFloors); welded, or with no side floors, it is level at `bot`
     // (a molded side can sit above `bot`: never within 0.5 of the top, which the
     // headroom check above keeps >= 0.8 over the plain floor + gap)
     const side = (k) => (welded || botLine[i].length < 5 ? bot
-      : Math.min(botLine[i][k] + PROP.footGap, top - 0.5));
+      : Math.min(botLine[i][k] + PROP.footGap + relief, top - 0.5));
     const bN = side(3), bP = side(4);
     const bHi = Math.max(bN, bP);
     const h = top - bHi;

@@ -10,6 +10,6 @@
 // to PLA (or never touching this) leaves existing prints unchanged. density is g/cm^3
 // for the grams receipt.
 export const MATERIAL = Object.freeze({
-  pla:  Object.freeze({ tineBite: 0.30, padH: 0.5, padGrab:  0.05, propGap: 0.2,  density: 1.24 }),
-  petg: Object.freeze({ tineBite: 0.15, padH: 0.3, padGrab: -0.10, propGap: 0.3,  density: 1.27 }),
+  pla:  Object.freeze({ tineBite: 0.30, padH: 0.5, padGrab:  0.05, propGap: 0.2, sideClear: 0.35, density: 1.24 }),
+  petg: Object.freeze({ tineBite: 0.15, padH: 0.3, padGrab: -0.10, propGap: 0.3, sideClear: 0.35, density: 1.27 }),
 });
