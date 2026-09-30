@@ -1,6 +1,6 @@
 // The three cavity clearances are independent of the bed pad and of the
 // upstream part-foot gap. Short line feet keep the latter's printed geometry.
-import { assert, assertClose, blockTopo, isClosed, fins, prop } from './_util.js';
+import { assert, assertClose, block, blockTopo, buildTopology, isClosed, fins, prop } from './_util.js';
 import { sweepBetween } from '../web/prop/sweep.js';
 import { stationIsClear } from '../web/prop/clearance.js';
 
@@ -20,6 +20,29 @@ Deno.test('side clearance applies when checking a fin wide face', () => {
     assert(!stationIsClear(line, 1, thin, rot, { x: 0, y: 0, z: 0 }),
       'high side clearance should detect a thin wall between the old probes');
   } finally { PROP.sideClear = was; }
+});
+
+Deno.test('part-attached wide face catches a thin wall at high side clearance', async () => {
+  const { buildPartAttached } = await import('../web/prop/attached.js');
+  const before = PROP.sideClear;
+  const triangles = new Float32Array([
+    ...block(-40, 40, -10, 10, 0, 5),
+    ...block(-40, 40, -10, 10, 35, 39),
+    ...block(-24, 24, 0.92, 1.06, 5, 34),
+  ]);
+  const topo = buildTopology({ getAttribute: k => k === 'position' ? { array: triangles } : null });
+  const line = Array.from({ length: 41 }, (_, i) => [i - 20, 0, 35]);
+  const rot = [1, 0, 0, 0, 1, 0, 0, 0, 1];
+  const offset = { x: 0, y: 0, z: 0 };
+  try {
+    PROP.sideClear = 0.35;
+    const baseline = buildPartAttached(line, triangles, topo, rot, offset, []);
+    assert(baseline.ok, `baseline part-attached wall failed: ${JSON.stringify(baseline)}`);
+    PROP.sideClear = 0.8;
+    const blocked = buildPartAttached(line, triangles, topo, rot, offset, []);
+    assert(!blocked.ok && blocked.floored === 'blocked',
+      `side clearance ignored the thin wall: ${JSON.stringify(blocked)}`);
+  } finally { PROP.sideClear = before; }
 });
 
 Deno.test('bottom relief preserves upstream gap and adds short line feet', () => {
