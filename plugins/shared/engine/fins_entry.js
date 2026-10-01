@@ -139,6 +139,7 @@ export function computeFins(positions, options = {}) {
   // leak into the next PLA run.
   const tunables = {
     tineBite: mat.tineBite, padH: mat.padH, padGrab: mat.padGrab, propGap: mat.propGap,
+    sideClear: mat.sideClear, bottomGap: 0,
     // Off builds no pad, so which style it carries doesn't matter; Auto keeps it valid.
     padStyle: pick('padStyle', opts.padStyle, PAD_STYLES) === 'off' ? 'auto' : opts.padStyle,
     cutout: pick('cutout', opts.cutout, CUTOUT_PATTERNS),

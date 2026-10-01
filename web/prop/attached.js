@@ -69,7 +69,7 @@ function enclosedColumn(top, floor, k, topo, rot, offset) {
  * Can a PART-ATTACHED wall at station `k` stand between its floor and the overhang
  * without piercing a side wall? Mirror of stationIsClear, but bounded to the
  * (floor, top) span the wall actually occupies -- it probes STRICTLY between the
- * ends, since the bottom is meant to weld to the floor and the top to break away
+ * ends, since the bottom keeps its part-foot gap and the top breaks away
  * under the overhang, and probing those would read the intended contacts as welds.
  */
 function clearBetween(top, floor, k, topo, rot, offset) {
@@ -82,9 +82,12 @@ function clearBetween(top, floor, k, topo, rot, offset) {
   const sx = ry / rn, sy = -rx / rn;
   const zTop = p[2] - PROP.gap, zBot = floor[k][2];
   const nP = Math.max(3, Math.ceil((zTop - zBot) / 1.5));
+  const margins = [];
+  for (let m = 0.12; m < PROP.sideClear - 1e-9; m += 0.12) margins.push(m);
+  margins.push(PROP.sideClear);
   for (let i = 1; i < nP; i++) {                 // strictly interior heights
     const z = zBot + ((zTop - zBot) * i) / nP;
-    for (const m of [0.12, 0.24, PROP.sideClear]) {
+    for (const m of margins) {
       const w = PROP.th / 2 + m;
       if (insidePart(topo, rot, offset, p[0] + sx * w, p[1] + sy * w, z)) return false;
       if (insidePart(topo, rot, offset, p[0] - sx * w, p[1] - sy * w, z)) return false;

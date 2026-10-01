@@ -172,12 +172,12 @@
        before. Layout only: every control keeps its id, and nothing it builds moved. -->
   <details class="sec" data-sec="setup" open>
     <summary><span class="sec-title">Setup</span><span class="sec-sum" id="sum-setup"></span></summary>
-    <!-- Material: PETG welds to a support far harder than the PLA the bite numbers
-         were tuned for, so it needs more clearance everywhere. PLA is the default and
-         keeps today's tight grip; PETG widens the support gap + fin-tine standoff,
-         halves the tine bite, thins the bed pad, and turns the pad's tack into a gap.
+    <!-- Material: PETG welds to supports more easily than PLA, so its top gap
+         is larger and its tine bite is smaller. Both use the same 0.35 mm
+         side clearance while that material-specific setting is untested.
+         PETG also thins the bed pad and turns its tack into a gap.
          Applied in ui/settings.js (applyMaterial), which also re-syncs the tunables below. -->
-    <label class="fld row" id="material-fld" title="The filament you'll print in. PETG fuses to supports much harder than PLA, so PETG loosens the gaps, shrinks the tine bite, and gives the bed pad a gap instead of a bite. PLA keeps the tighter grip.">
+    <label class="fld row" id="material-fld" title="The filament you'll print in. PETG uses a larger top gap, a smaller tine bite, and a gap at the bed pad. Side clearance is 0.35 mm for both PLA and PETG.">
       Material
       <select id="material">
         <option value="pla">PLA</option>
@@ -231,7 +231,7 @@
 
   <!-- Contact/gap tuning: the default holds and breaks off for most parts, but the
        right clearance depends on the printer and the surface you care about, so it
-       is exposed. Support gap = clearance between a support top and the part (bigger
+       is exposed. Top gap = clearance between a support top and the part (bigger
        = cleaner surface / easier to remove, too big = stops holding the overhang).
        Bed pad = the pad under a part that barely touches the plate (PAD.style in
        fins/pad.js): Auto (default) picks Light, or Sure hold on a small foot, and
@@ -240,9 +240,17 @@
        every pad number and is the only style that shows them. -->
   <details class="sec" data-sec="clearances">
     <summary><span class="sec-title">Clearances</span><span class="sec-sum" id="sum-clearances"></span></summary>
-    <label class="fld row" title="Clearance between a support top and the part. Bigger = cleaner surface / easier removal; too big stops holding the overhang. Default 0.2mm.">
-      <span>Support gap <span class="mut">mm</span></span>
+    <label class="fld row" title="Clearance between a support top and the underside it holds. Bigger = easier removal; too big stops holding the overhang. Default 0.20 mm. Range 0.10–0.40 mm.">
+      <span>Top gap <span class="mut">mm</span></span>
       <input type="number" id="gap" min="0.1" max="0.4" step="0.05" value="0.2">
+    </label>
+    <label class="fld row" title="Clearance alongside a fin's wide faces only. It does not clear the narrow fin ends from nearby end walls. More clearance can trim or reject a fin when space is tight. Default 0.35 mm for PLA and PETG. Range 0.20–1.00 mm.">
+      <span>Side clearance <span class="mut">mm</span></span>
+      <input type="number" id="side-gap" min="0.2" max="1.0" step="0.05" value="0.35">
+    </label>
+    <label class="fld row" title="Additional lift above the existing 0.20 mm part-foot gap, between short line feet every 6 mm. At 0, the original continuous foot gap stays unchanged. The short line feet keep the existing gap; this print behavior still needs testing. Range 0–0.60 mm.">
+      <span>Bottom relief <span class="mut">mm</span></span>
+      <input type="number" id="bottom-gap" min="0" max="0.6" step="0.05" value="0">
     </label>
     <label class="fld row" title="A tilted part rests on an edge and peels off the plate without a pad. Auto: Light, or Sure hold when the part meets the plate on a point or a small round foot (it shows which). Light: one layer, 0.12mm off the part, peels off like a brim. Sure hold: thicker and tacked into the part, holds harder but is harder to remove. Custom: set every number yourself.">
       Bed pad

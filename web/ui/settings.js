@@ -150,8 +150,18 @@ function wireGap(id, obj, key, lo, hi) {
     const v = input.valueAsNumber;
     if (Number.isFinite(v)) { obj[key] = Math.min(hi, Math.max(lo, v)); debouncedRefresh(); }
   });
+  // A number typed outside the range is clamped in the engine; show that same
+  // effective value after editing so the recap never advertises an invalid gap.
+  input.addEventListener('change', () => {
+    const v = input.valueAsNumber;
+    if (Number.isFinite(v)) obj[key] = Math.min(hi, Math.max(lo, v));
+    input.value = String(obj[key]);
+    syncSectionSums();
+  });
 }
 wireGap('gap', PROP, 'gap', 0.1, 0.4);
+wireGap('side-gap', PROP, 'sideClear', 0.2, 1.0);
+wireGap('bottom-gap', PROP, 'bottomGap', 0, 0.6);
 
 // Wall cutouts (issue #34). CUT.pattern is read fresh by every wall sweep -- the
 // drawn walls here on the page, the auto walls in the Worker via tunables.
@@ -171,11 +181,15 @@ function applyMaterial(name) {
   FIN.padH = m.padH;
   PAD.grab = m.padGrab;
   PROP.gap = m.propGap;
+  PROP.sideClear = m.sideClear;
+  PROP.bottomGap = 0;
   materialDensity = m.density;
   // Reflect the profile's clearances in the exposed tunables so the numbers on
   // screen match what will actually print (and a later hand-tweak starts from the
   // material's baseline, not PLA's).
   el('gap').value = m.propGap;
+  el('side-gap').value = m.sideClear;
+  el('bottom-gap').value = 0;
   syncSectionSums();
 }
 
@@ -242,7 +256,7 @@ export function syncSectionSums() {
     ? `${grip <= 20 ? 'light' : grip >= 80 ? 'firm' : 'medium'} grip · ${el('layer-height').value} mm`
     : 'off';
   el('sum-clearances').textContent =
-    `${el('gap').value} mm gap · pad ${el('bed-pad').selectedOptions[0].textContent.toLowerCase()}`;
+    `top ${el('gap').value} · side ${el('side-gap').value} · bottom ${el('bottom-gap').value} mm · pad ${el('bed-pad').selectedOptions[0].textContent.toLowerCase()}`;
   const cut = el('cutout').value;
   el('sum-walls').textContent = cut === 'none' ? 'solid' : `${sel('cutout').toLowerCase()} cutouts`;
   el('sum-sway').textContent = el('sway').checked

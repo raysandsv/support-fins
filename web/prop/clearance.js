@@ -56,11 +56,14 @@ export function stationIsClear(line, k, topo, rot, offset) {
   // wall face and a single far-edge probe, containing neither. Stepping at
   // ~0.12mm resolves anything a nozzle can actually print.
   const nProbes = Math.max(PROP.clearProbes, Math.ceil(top / 1.5));
+  const margins = [];
+  for (let m = 0.12; m < PROP.sideClear - 1e-9; m += 0.12) margins.push(m);
+  margins.push(PROP.sideClear);
   for (let i = 1; i <= nProbes; i++) {
     const z = (top * i) / nProbes - 0.05;
     if (z <= 0) continue;
     const half = profileHalf(z, top);   // flange, wall, or tip taper at this z
-    for (const m of [0.12, 0.24, PROP.sideClear]) {
+    for (const m of margins) {
       const w = half + m;
       if (insidePart(topo, rot, offset, p[0] + sx * w, p[1] + sy * w, z)) return false;
       if (insidePart(topo, rot, offset, p[0] - sx * w, p[1] - sy * w, z)) return false;
